@@ -10,21 +10,33 @@ import { ServiceContext, Errors } from 'typescript-rest';
  */
 export function FireAuth() {
     return function (target: any, propertyKey: string, descriptor: any) {
+        let isDecodedToken = function (object: any): object is admin.auth.DecodedIdToken {
+            return object;
+        }
         //save original method.
         const originalMethod = descriptor.value;
-
         let serviceContext: ServiceContext;
         descriptor.value = function () {
             return new Promise<any>((resolve, reject)=>{
-                console.log(this);
                 //get context from controller instance.
-                serviceContext = this.context;
-                if (serviceContext) {
+                for (let propName in this){
+                    if (this[propName] instanceof ServiceContext){
+                        serviceContext = this[propName];
+                    }
+                }
+                if (serviceContext && serviceContext.request) {
                     let bearerToken = serviceContext.request.get('Authorization');
                     if (bearerToken && ~bearerToken.indexOf('Bearer')) {
                         admin.auth().verifyIdToken(bearerToken.split(' ')[1])
-                            .then(() => {
-                                //token is valid. run original method.
+                            .then((decodedToken: admin.auth.DecodedIdToken) => {
+                                //token is valid. 
+                                //load token argument, if exists.
+                                for (var i=0;i<arguments.length;i++){
+                                    if (isDecodedToken(arguments[i])){
+                                        arguments[i] = decodedToken;
+                                    }
+                                }
+                                //run original method.
                                 var result = originalMethod.apply(this, arguments);
                                 resolve(result);
                             })

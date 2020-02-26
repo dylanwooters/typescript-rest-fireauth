@@ -28,7 +28,10 @@
   "homepage": "https://github.com/dylanwooters/typescript-rest-fireauth#readme",
   "dependencies": {
     "firebase-admin": "^8.9.2",
-    "rimraf": "^3.0.2",
     "typescript-rest": "^2.2.6"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^3.8.2"
   }
 }
