@@ -10,24 +10,32 @@ import { ServiceContext, Errors } from 'typescript-rest';
  */
 export function FireAuth() {
     return function (target: any, propertyKey: string, descriptor: any) {
+        //we must use a type guard here since DecodedIdToken is an interface
         let isDecodedToken = function (object: any): object is admin.auth.DecodedIdToken {
             return object;
         }
         //save original method.
         const originalMethod = descriptor.value;
         let serviceContext: ServiceContext;
+        let auth: admin.auth.Auth;
         descriptor.value = function () {
             return new Promise<any>((resolve, reject)=>{
-                //get context from controller instance.
+                //get typescript-rest servicecontext from controller instance.
                 for (let propName in this){
-                    if (this[propName] instanceof ServiceContext){
+                    if (this[propName].constructor.name === "ServiceContext"){
                         serviceContext = this[propName];
+                    }
+                }
+                //get Firebase auth from controller instace.
+                for (let propName in this){
+                    if (this[propName].constructor.name === "Auth"){
+                        auth = this[propName];
                     }
                 }
                 if (serviceContext && serviceContext.request) {
                     let bearerToken = serviceContext.request.get('Authorization');
                     if (bearerToken && ~bearerToken.indexOf('Bearer')) {
-                        admin.auth().verifyIdToken(bearerToken.split(' ')[1])
+                        auth.verifyIdToken(bearerToken.split(' ')[1])
                             .then((decodedToken: admin.auth.DecodedIdToken) => {
                                 //token is valid. 
                                 //load token argument, if exists.
