@@ -10,10 +10,11 @@ import { ServiceContext, Errors } from 'typescript-rest';
  */
 export function FireAuth() {
     return function (target: any, propertyKey: string, descriptor: any) {
-        //we must use a type guard here since DecodedIdToken is an interface
-        let isDecodedToken = function (object: any): object is admin.auth.DecodedIdToken {
-            return object;
-        }
+        //can't get this working due to typescript-rest marking all arguments as objects...
+        // let isDecodedToken = function (object: any): object is admin.auth.DecodedIdToken {
+        //     return true;
+        // }
+
         //save original method.
         const originalMethod = descriptor.value;
         let serviceContext: ServiceContext;
@@ -37,13 +38,14 @@ export function FireAuth() {
                     if (bearerToken && ~bearerToken.indexOf('Bearer')) {
                         auth.verifyIdToken(bearerToken.split(' ')[1])
                             .then((decodedToken: admin.auth.DecodedIdToken) => {
-                                //token is valid. 
                                 //load token argument, if exists.
-                                for (var i=0;i<arguments.length;i++){
-                                    if (isDecodedToken(arguments[i])){
-                                        arguments[i] = decodedToken;
-                                    }
-                                }
+                                // for (var i=0;i<arguments.length;i++){
+                                //     if (isDecodedToken(arguments[i])){
+                                //         arguments[i] = decodedToken;
+                                //     }
+                                // }
+
+                                //token is valid. 
                                 //run original method.
                                 var result = originalMethod.apply(this, arguments);
                                 resolve(result);

@@ -9,7 +9,7 @@ As an option, you can also pass in a `DecodedIdToken` as an argument in your con
 
 ## Installation
 
-1. Make sure you have [typescript-rest](https://www.npmjs.com/package/typescript-rest) installed and that you have configured experimental decorators in your tsconfig.json file:
+1. Make sure you have [typescript-rest](https://www.npmjs.com/package/typescript-rest) installed and that you have configured experimental decorators in your tsconfig.json file. Alternatively, you can use the typescript-rest [boilerplate](https://github.com/vrudikov/typescript-rest-boilerplate) project.
 ```
 {
   "compilerOptions": {
@@ -43,20 +43,20 @@ export class UserController {
 
 ```
 
-3. Add the `FireAuth` decorator to an endpoint that needs authentication. And optionally, add an argument of type `DecodedIdToken` that will be loaded with the decoded token.
+3. Add the `FireAuth` decorator to an endpoint that needs authentication.
 
 ```
+import { FireAuth } from 'typescript-rest-fireauth';
+
 /**
  * Retrieve a User.
  */
 @FireAuth()
 @Path('/details')
 @GET
-getUserDetails(token: admin.auth.DecodedIdToken): Promise<User> {
+getUserDetails(@PathParam('id') id: string): Promise<User> {
     return new Promise<User>((resolve, reject)=>{
-        //this will show the decoded token object with Firebase UID
-        console.log('Decoded token:', token);
-        this.myService.getUser(token.uid)
+        this.myService.getUser(id)
         .then((user) => {
             resolve(user);
         })
