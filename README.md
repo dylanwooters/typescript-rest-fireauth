@@ -9,7 +9,7 @@ As an option, you can also apply the `Decode` decorator to an argument in a `Fir
 
 ## Step 1: Installation
 
-1. Make sure you have [typescript-rest](https://www.npmjs.com/package/typescript-rest) installed and that you have configured experimental decorators in your tsconfig.json file. Alternatively, you can use the typescript-rest [boilerplate](https://github.com/vrudikov/typescript-rest-boilerplate) project.
+Make sure you have [typescript-rest](https://www.npmjs.com/package/typescript-rest) installed and that you have configured experimental decorators in your tsconfig.json file. Alternatively, you can use the typescript-rest [boilerplate](https://github.com/vrudikov/typescript-rest-boilerplate) project.
 ```
 {
   "compilerOptions": {
@@ -19,18 +19,16 @@ As an option, you can also apply the `Decode` decorator to an argument in a `Fir
 }
 ```
 
-2. Then install typescript-rest-fireauth:
+Then install typescript-rest-fireauth:
 `npm install typescript-rest-fireauth`
 
 ## Step 2: Configuration
 
 ### Back-end
 
-1. [Install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK anywhere in your API.
+The first step is to [install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK anywhere in your API.
 
-2. In your controller class, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase.
-
-  If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.
+Then, in your controller class, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase. (If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.)
 
   ```
   import { GET, Path, Context, ServiceContext } from 'typescript-rest';
@@ -46,7 +44,7 @@ As an option, you can also apply the `Decode` decorator to an argument in a `Fir
 
   ```
 
-3. Add the `FireAuth` decorator to an endpoint that requires authentication.
+Finally, add the `FireAuth` decorator to an endpoint that requires authentication.
 
   ```
   import { FireAuth } from 'typescript-rest-fireauth';
@@ -68,7 +66,7 @@ As an option, you can also apply the `Decode` decorator to an argument in a `Fir
   }
   ```
 
-4. (optional) Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` or POST body arguments.
+(optional) Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` or POST body arguments.
 
   ```
   import { FireAuth, Decode } from 'typescript-rest-fireauth';
