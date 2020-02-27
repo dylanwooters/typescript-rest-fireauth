@@ -2,6 +2,8 @@ import * as admin from 'firebase-admin';
 import { ServiceContext, Errors } from 'typescript-rest';
 
 const decodeMetadataKey = Symbol("decodeIndex");
+const contextConstructorName = "ServiceContext";
+const authContstructorName = "Auth";
 
 /**
  * Add Firebase authentication to a route
@@ -20,13 +22,13 @@ export function FireAuth() {
             return new Promise<any>((resolve, reject)=>{
                 //get typescript-rest servicecontext from controller object.
                 for (let propName in this){
-                    if (this[propName].constructor.name === "ServiceContext"){
+                    if (this[propName].constructor.name === contextConstructorName){
                         serviceContext = this[propName];
                     }
                 }
                 //get firebase auth from controller object.
                 for (let propName in this){
-                    if (this[propName].constructor.name === "Auth"){
+                    if (this[propName].constructor.name === authContstructorName){
                         auth = this[propName];
                     }
                 }
@@ -65,6 +67,13 @@ export function FireAuth() {
     }
 }
 
+/**
+ * Mark an object to be fulfilled with a decoded token
+ *
+ * @param target The prototype of the class
+ * @param propertyKey The name of the method
+ * @param parameterIndex The index of the method parameter
+ */
 export function Decode(target: Object, propertyKey: string | symbol, parameterIndex: number) {
     Reflect.defineMetadata(decodeMetadataKey, parameterIndex, target, propertyKey);
     console.log('Added decode metadata');
