@@ -3,7 +3,8 @@ Need to add Firebase token authentication to your typescript-rest project?
 
 This project provides a `FireAuth` decorator that you can place on any API endpoint. It will guard the endpoint, verifying the Firebase ID token passed in with the Authorization header.
 
-As an option, you can also pass in a `DecodedIdToken` as an argument in your controller method, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken).
+<!--- still working on this... --->
+<!--- As an option, you can also pass in a `DecodedIdToken` as an argument in your controller method, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). --->
 
 # Usage
 
@@ -18,6 +19,8 @@ As an option, you can also pass in a `DecodedIdToken` as an argument in your con
   }
 }
 ```
+
+NOTE: This hasn't been published to npm yet. For now, you'll have to just clone the repo. Sorry :poop:
 
 2. Then install typescript-rest-fireauth:
 `npm install typescript-rest-fireauth`
