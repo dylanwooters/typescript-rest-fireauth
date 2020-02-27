@@ -1,14 +1,13 @@
 # :fire: typescript-rest-fireauth :fire:
-Need to add Firebase token authentication to your typescript-rest project?
+Need to add Firebase token authentication to your typescript-rest API?
 
-This project provides a `FireAuth` decorator that you can place on any API endpoint. It will guard the endpoint, verifying the Firebase ID token passed in with the Authorization header.
+This project provides a `FireAuth` decorator that you can place on any typescript-rest API endpoint. It will guard the endpoint, verifying the Firebase ID token passed in with the Authorization header.
 
-<!--- still working on this... --->
-<!--- As an option, you can also pass in a `DecodedIdToken` as an argument in your controller method, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). --->
+As an option, you can also apply the `Decode` decorator to an argument in a `FireAuth` method. The argument will then be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken).
 
 # Usage
 
-## Installation
+## Step 1: Installation
 
 1. Make sure you have [typescript-rest](https://www.npmjs.com/package/typescript-rest) installed and that you have configured experimental decorators in your tsconfig.json file. Alternatively, you can use the typescript-rest [boilerplate](https://github.com/vrudikov/typescript-rest-boilerplate) project.
 ```
@@ -20,8 +19,6 @@ This project provides a `FireAuth` decorator that you can place on any API endpo
 }
 ```
 
-NOTE: This hasn't been published to npm yet. For now, you'll have to just clone the repo. Sorry :poop:
-
 2. Then install typescript-rest-fireauth:
 `npm install typescript-rest-fireauth`
 
@@ -29,9 +26,11 @@ NOTE: This hasn't been published to npm yet. For now, you'll have to just clone 
 
 ### Back-end
 
-1. [Install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK
+1. [Install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK anywhere in your API.
 
-2. In your controller, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request headers and verify the token.
+2. In your controller class, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase.
+
+If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.
 
 ```
 import { GET, Path, Context, ServiceContext } from 'typescript-rest';
@@ -39,6 +38,7 @@ import * as admin from 'firebase-admin';
 
 @Path('/user')
 export class UserController {
+
   @Context
   private context: ServiceContext;
   private admin: admin.auth.Auth = admin.auth();
@@ -46,7 +46,7 @@ export class UserController {
 
 ```
 
-3. Add the `FireAuth` decorator to an endpoint that needs authentication.
+3. Add the `FireAuth` decorator to an endpoint that requires authentication.
 
 ```
 import { FireAuth } from 'typescript-rest-fireauth';
@@ -55,15 +55,38 @@ import { FireAuth } from 'typescript-rest-fireauth';
  * Retrieve a User.
  */
 @FireAuth()
-@Path('/details')
+@Path(':id')
 @GET
-getUserDetails(@PathParam('id') id: string): Promise<User> {
+getUser(@PathParam('id') id: string): Promise<User> {
     return new Promise<User>((resolve, reject)=>{
         this.myService.getUser(id)
-        .then((user) => {
-            resolve(user);
-        })
-        .catch((err) => reject(err));
+          .then((user) => {
+              resolve(user);
+          })
+          .catch((err) => reject(err));
+    });
+}
+```
+
+4. (optional) Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` or POST body arguments.
+
+```
+import { FireAuth, Decode } from 'typescript-rest-fireauth';
+
+/**
+ * Retrieve a User.
+ */
+@FireAuth()
+@Path(':id')
+@GET
+getUser(@PathParam('id') id: string, @Decode decodedToken: any): Promise<User> {
+    return new Promise<User>((resolve, reject)=>{
+        console.log('user firebase uid is ' + decodedToken.uid);
+        this.myService.getUserByUid(decodedToken.uid)
+          .then((user) => {
+              resolve(user);
+          })
+          .catch((err) => reject(err));
     });
 }
 ```
@@ -74,9 +97,11 @@ In your front-end app, requests to the `FireAuth` endpoints must include the Fir
 
 Check out the [Google documentation](https://firebase.google.com/docs/auth/admin/verify-id-tokens#retrieve_id_tokens_on_clients) on obtaining Firebase ID tokens on the client side.
 
+Here is a sample request:
+
 ```
-GET /user/details HTTP/1.1
+GET /user/12345 HTTP/1.1
 Host: localhost:3000
 Content-Type: application/json
-Authorization: Bearer [token]
+Authorization: Bearer [firebase id token]
 ```
