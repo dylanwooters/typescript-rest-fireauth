@@ -7,7 +7,7 @@ As an option, you can also apply the `Decode` decorator to an argument in a `Fir
 
 # Usage
 
-## Installation
+## Step 1: Installation
 
 1. Make sure you have [typescript-rest](https://www.npmjs.com/package/typescript-rest) installed and that you have configured experimental decorators in your tsconfig.json file. Alternatively, you can use the typescript-rest [boilerplate](https://github.com/vrudikov/typescript-rest-boilerplate) project.
 ```
