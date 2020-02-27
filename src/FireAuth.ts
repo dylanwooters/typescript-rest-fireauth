@@ -38,7 +38,7 @@ export function FireAuth() {
                         auth.verifyIdToken(bearerToken.split(' ')[1])
                             .then((decodedToken: admin.auth.DecodedIdToken) => {
                                 //token is valid. 
-
+                                
                                 //find and load decodedToken object, if exists.
                                 let decodeParamIndex: number = Reflect.getOwnMetadata(decodeMetadataKey, target, propertyKey);
                                 if (decodeParamIndex) {
@@ -76,5 +76,4 @@ export function FireAuth() {
  */
 export function Decode(target: Object, propertyKey: string | symbol, parameterIndex: number) {
     Reflect.defineMetadata(decodeMetadataKey, parameterIndex, target, propertyKey);
-    console.log('Added decode metadata');
 }

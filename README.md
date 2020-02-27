@@ -26,20 +26,22 @@ Then install typescript-rest-fireauth:
 
 ### Back-end
 
-The first step is to [install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK anywhere in your API.
+The first step is to [install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK. Usually this is best done in the function that starts the server. If you're using the boilerplate project, this would be in `start.ts`.
 
 Then, in your controller class, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase. (If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.)
 
   ```
-  import { GET, Path, Context, ServiceContext } from 'typescript-rest';
+  import { GET, Path, PathParam, Context, ServiceContext } from 'typescript-rest';
   import * as admin from 'firebase-admin';
 
   @Path('/user')
   export class UserController {
 
+    //required by FireAuth
     @Context
     private context: ServiceContext;
     private admin: admin.auth.Auth = admin.auth();
+    //
   }
 
   ```
