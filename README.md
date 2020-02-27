@@ -30,66 +30,66 @@ As an option, you can also apply the `Decode` decorator to an argument in a `Fir
 
 2. In your controller class, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase.
 
-If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.
+  If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.
 
-```
-import { GET, Path, Context, ServiceContext } from 'typescript-rest';
-import * as admin from 'firebase-admin';
+  ```
+  import { GET, Path, Context, ServiceContext } from 'typescript-rest';
+  import * as admin from 'firebase-admin';
 
-@Path('/user')
-export class UserController {
+  @Path('/user')
+  export class UserController {
 
-  @Context
-  private context: ServiceContext;
-  private admin: admin.auth.Auth = admin.auth();
-}
+    @Context
+    private context: ServiceContext;
+    private admin: admin.auth.Auth = admin.auth();
+  }
 
-```
+  ```
 
 3. Add the `FireAuth` decorator to an endpoint that requires authentication.
 
-```
-import { FireAuth } from 'typescript-rest-fireauth';
+  ```
+  import { FireAuth } from 'typescript-rest-fireauth';
 
-/**
- * Retrieve a User.
- */
-@FireAuth()
-@Path(':id')
-@GET
-getUser(@PathParam('id') id: string): Promise<User> {
-    return new Promise<User>((resolve, reject)=>{
-        this.myService.getUser(id)
-          .then((user) => {
-              resolve(user);
-          })
-          .catch((err) => reject(err));
-    });
-}
-```
+  /**
+  * Retrieve a User.
+  */
+  @FireAuth()
+  @Path(':id')
+  @GET
+  getUser(@PathParam('id') id: string): Promise<User> {
+      return new Promise<User>((resolve, reject)=>{
+          this.myService.getUser(id)
+            .then((user) => {
+                resolve(user);
+            })
+            .catch((err) => reject(err));
+      });
+  }
+  ```
 
 4. (optional) Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` or POST body arguments.
 
-```
-import { FireAuth, Decode } from 'typescript-rest-fireauth';
+  ```
+  import { FireAuth, Decode } from 'typescript-rest-fireauth';
 
-/**
- * Retrieve a User.
- */
-@FireAuth()
-@Path(':id')
-@GET
-getUser(@PathParam('id') id: string, @Decode decodedToken: any): Promise<User> {
-    return new Promise<User>((resolve, reject)=>{
-        console.log('user firebase uid is ' + decodedToken.uid);
-        this.myService.getUserByUid(decodedToken.uid)
-          .then((user) => {
-              resolve(user);
-          })
-          .catch((err) => reject(err));
-    });
-}
-```
+  /**
+  * Retrieve a User.
+  */
+  @FireAuth()
+  @Path(':id')
+  @GET
+  getUser(@PathParam('id') id: string, @Decode decodedToken: any): Promise<User> {
+      return new Promise<User>((resolve, reject)=>{
+          console.log('user firebase uid is ' + decodedToken.uid);
+          this.myService.getUserByUid(decodedToken.uid)
+            .then((user) => {
+                resolve(user);
+            })
+            .catch((err) => reject(err));
+      });
+  }
+  ```
 
 ### Front-end
 
