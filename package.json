@@ -1,6 +1,6 @@
 {
   "name": "typescript-rest-fireauth",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Firebase token authentication for typescript-rest APIs",
   "main": "dist/FireAuth.js",
   "types": "dist/FireAuth.d.ts",
