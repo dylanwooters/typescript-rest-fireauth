@@ -3,7 +3,7 @@ Need to add Firebase token authentication to your typescript-rest API?
 
 This project provides a `FireAuth` decorator that you can place on any typescript-rest API endpoint. It will guard the endpoint, verifying the Firebase ID token passed in with the Authorization header.
 
-As an option, you can also apply the `Decode` decorator to an argument in a `FireAuth` method. The argument will then be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken).
+<!--- As an option, you can also apply the `Decode` decorator to an argument in a `FireAuth` method. The argument will then be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). --->
 
 # Usage
 
@@ -68,7 +68,9 @@ Finally, add the `FireAuth` decorator to an endpoint that requires authenticatio
   }
   ```
 
-(optional) Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` or POST body arguments.
+(NOTE: the `Decode` decorator, below, is currently only working for GET endpoints, due to a typescript-rest limitation. I hope to have POST requests working soon.) 
+
+Optional: Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` arguments.
 
   ```
   import { FireAuth, Decode } from 'typescript-rest-fireauth';
