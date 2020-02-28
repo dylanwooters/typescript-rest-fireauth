@@ -37,7 +37,7 @@ Then, in your controller class, add properties of type ServiceContext and admin.
   @Path('/user')
   export class UserController {
 
-    //required by FireAuth
+    //required by typescript-rest-fireauth
     @Context
     private context: ServiceContext;
     private admin: admin.auth.Auth = admin.auth();

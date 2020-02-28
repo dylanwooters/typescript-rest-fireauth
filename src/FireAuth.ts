@@ -20,14 +20,11 @@ export function FireAuth() {
         let auth: admin.auth.Auth;
         descriptor.value = function () {
             return new Promise<any>((resolve, reject)=>{
-                //get typescript-rest servicecontext from controller object.
+                //get typescript-rest servicecontext and firebase auth from controller object.
                 for (let propName in this){
                     if (this[propName].constructor.name === contextConstructorName){
                         serviceContext = this[propName];
                     }
-                }
-                //get firebase auth from controller object.
-                for (let propName in this){
                     if (this[propName].constructor.name === authContstructorName){
                         auth = this[propName];
                     }
@@ -55,6 +52,7 @@ export function FireAuth() {
                             })
                             .catch((err) => {
                                 //token is invalid, reject.
+                                console.error(err.message);
                                 reject(new Errors.UnauthorizedError('Invalid token.'));
                             })
                     } else {
@@ -62,7 +60,7 @@ export function FireAuth() {
                         reject(new Errors.UnauthorizedError('Bearer authentication is required for this endpoint.'));
                     }
                 } else {
-                    console.error('Required controller properties not found. Did you add ServiceContext and admin.auth.Auth properties to your controller? See README.')
+                    console.error('typescript-rest-fireauth error: Required controller properties not found. Did you add ServiceContext and admin.auth.Auth properties to your controller? See README.')
                     reject(new Errors.InternalServerError());
                 }
             });
