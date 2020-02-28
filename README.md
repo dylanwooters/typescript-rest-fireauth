@@ -70,7 +70,7 @@ Finally, add the `FireAuth` decorator to an endpoint that requires authenticatio
 
 (NOTE: the `Decode` decorator, below, is currently only working for GET endpoints, due to a typescript-rest limitation. I hope to have other requests types working soon in a future release.) 
 
-Optional: Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). Note that this argument should be the last, after any `PathParam` arguments.
+Optional: Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). This argument should be the last, after any `PathParam` arguments.
 
   ```
   import { FireAuth, Decode } from 'typescript-rest-fireauth';
