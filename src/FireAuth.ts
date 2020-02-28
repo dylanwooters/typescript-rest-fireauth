@@ -34,7 +34,11 @@ export function FireAuth() {
                 }
                 if (serviceContext && auth) {
                     let bearerToken = serviceContext.request.get('Authorization');
-                    if (bearerToken && ~bearerToken.indexOf('Bearer')) {
+                    if (bearerToken 
+                        && ~bearerToken.indexOf('Bearer') 
+                        && bearerToken.split(' ').length === 2
+                        && bearerToken.split(' ')[1] !== ''
+                        ) {
                         auth.verifyIdToken(bearerToken.split(' ')[1])
                             .then((decodedToken: admin.auth.DecodedIdToken) => {
                                 //token is valid. 
@@ -51,11 +55,11 @@ export function FireAuth() {
                             })
                             .catch((err) => {
                                 //token is invalid, reject.
-                                reject(new Errors.UnauthorizedError('Invalid Firebase token.'));
+                                reject(new Errors.UnauthorizedError('Invalid token.'));
                             })
                     } else {
-                        //no bearer token sent, reject.
-                        reject(new Errors.UnauthorizedError('Authentication required for this endpoint.'));
+                        //no bearer token sent, reject.`
+                        reject(new Errors.UnauthorizedError('Bearer authentication is required for this endpoint.'));
                     }
                 } else {
                     console.error('Required controller properties not found. Did you add ServiceContext and admin.auth.Auth properties to your controller? See README.')
