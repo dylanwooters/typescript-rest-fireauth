@@ -3,7 +3,7 @@ Need to add Firebase token authentication to your typescript-rest API?
 
 This project provides a `FireAuth` decorator that you can place on any typescript-rest API endpoint. It will guard the endpoint, verifying the Firebase ID token passed in with the Authorization header.
 
-<!--- As an option, you can also apply the `Decode` decorator to an argument in a `FireAuth` method. The argument will then be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). --->
+As an option, you can also obtain the value of the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken) for use within your controller.
 
 # Usage
 
@@ -28,11 +28,13 @@ Then install typescript-rest-fireauth:
 
 The first step is to [install and initialize](https://firebase.google.com/docs/admin/setup/) the Firebase Admin SDK. Usually this is best done in the function that starts the server. If you're using the boilerplate project, this would be in `start.ts`.
 
-Then, in your controller class, add properties of type ServiceContext and admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase. (If these properties remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.)
+Then, in your controller class, add the typescript-rest ServiceContext with the @Context decorator, and instantiate a property of type admin.auth.Auth. These will be used to obtain request authorization headers and verify the token with Firebase. Also instantiate a property of type `DecodedToken` if you'd like to use the decoded Firebase ID Token.
 
   ```
+  //required by FireAuth
   import { GET, Path, PathParam, Context, ServiceContext } from 'typescript-rest';
   import * as admin from 'firebase-admin';
+  import { FireAuth, DecodedToken } from 'typescript-rest-fireauth';
 
   @Path('/user')
   export class UserController {
@@ -41,7 +43,9 @@ Then, in your controller class, add properties of type ServiceContext and admin.
     @Context
     private context: ServiceContext;
     private admin: admin.auth.Auth = admin.auth();
-    //
+    
+    //optional - use to obtain the decoded firebase id token 
+    private decodedToken: DecodedToken = new DecodedToken();
   }
 
   ```
@@ -49,8 +53,6 @@ Then, in your controller class, add properties of type ServiceContext and admin.
 Finally, add the `FireAuth` decorator to an endpoint that requires authentication.
 
   ```
-  import { FireAuth } from 'typescript-rest-fireauth';
-
   /**
   * Retrieve a User.
   */
@@ -68,12 +70,9 @@ Finally, add the `FireAuth` decorator to an endpoint that requires authenticatio
   }
   ```
 
-(NOTE: the `Decode` decorator, below, is currently only working for GET endpoints, due to a typescript-rest limitation. I hope to have other requests types working soon in a future release.) 
-
-Optional: Add the `Decode` decorator to a controller method argument, which will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken). This argument should be the last, after any `PathParam` arguments.
+Optional: If you added the `DecodedToken` as a property on your controller method argument, it will be loaded with the [decoded Firebase ID token](https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken) for the current request. 
 
   ```
-  import { FireAuth, Decode } from 'typescript-rest-fireauth';
 
   /**
   * Retrieve a User.
@@ -81,10 +80,10 @@ Optional: Add the `Decode` decorator to a controller method argument, which will
   @FireAuth()
   @Path(':id')
   @GET
-  getUser(@PathParam('id') id: string, @Decode decodedToken: any): Promise<User> {
+  getUser(@PathParam('id') id: string): Promise<User> {
       return new Promise<User>((resolve, reject)=>{
-          console.log('user firebase uid is ' + decodedToken.uid);
-          this.myService.getUserByUid(decodedToken.uid)
+          console.log('user firebase uid is ' + this.decodedToken.uid);
+          this.myService.getUserByUid(this.decodedToken.uid)
             .then((user) => {
                 resolve(user);
             })
@@ -107,3 +106,13 @@ Host: localhost:3000
 Content-Type: application/json
 Authorization: Bearer [firebase id token]
 ```
+
+## Gotchas
+
+If the properties required by typescript-rest-fireauth remain unread in your controller, you may receive an error upon build. You can resolve this by changing `noUnusedLocals` to false in your tsconfig.json.
+
+## Release Notes
+
+1.0.0 - Initial release.
+
+1.1.0 - Switched from `Decode` decorator to `DecodedToken` class to offer decoded Firebase ID token, because typescript-rest does not allow additional parameters in POST/PUT methods.

@@ -1,9 +1,9 @@
 import * as admin from 'firebase-admin';
 import { ServiceContext, Errors } from 'typescript-rest';
 
-const decodeMetadataKey = Symbol("decodeIndex");
 const contextConstructorName = "ServiceContext";
-const authContstructorName = "Auth";
+const authConstructorName = "Auth";
+const decodedConstructorName = "DecodedToken";
 
 /**
  * Add Firebase authentication to a route
@@ -18,15 +18,19 @@ export function FireAuth() {
         const originalMethod = descriptor.value;
         let serviceContext: ServiceContext;
         let auth: admin.auth.Auth;
+        let tokenPropName: string;
         descriptor.value = function () {
             return new Promise<any>((resolve, reject)=>{
-                //get typescript-rest servicecontext and firebase auth from controller object.
+                //get typescript-rest servicecontext,firebase auth, and decoded token from controller object.
                 for (let propName in this){
                     if (this[propName].constructor.name === contextConstructorName){
                         serviceContext = this[propName];
                     }
-                    if (this[propName].constructor.name === authContstructorName){
+                    if (this[propName].constructor.name === authConstructorName){
                         auth = this[propName];
+                    }
+                    if (this[propName].constructor.name === decodedConstructorName){
+                        tokenPropName = propName;
                     }
                 }
                 if (serviceContext && auth) {
@@ -39,11 +43,9 @@ export function FireAuth() {
                         auth.verifyIdToken(bearerToken.split(' ')[1])
                             .then((decodedToken: admin.auth.DecodedIdToken) => {
                                 //token is valid. 
-                                
-                                //find and load decodedToken object, if exists.
-                                let decodeParamIndex: number = Reflect.getOwnMetadata(decodeMetadataKey, target, propertyKey);
-                                if (decodeParamIndex) {
-                                    arguments[decodeParamIndex] = decodedToken;
+                                //assign value of decoded token to controller prop
+                                if (tokenPropName) {
+                                    Object.assign(this[tokenPropName], decodedToken);
                                 }
 
                                 //run original method.
@@ -69,13 +71,15 @@ export function FireAuth() {
     }
 }
 
-/**
- * Mark an object to be fulfilled with a decoded token
- *
- * @param target The prototype of the class
- * @param propertyKey The name of the method
- * @param parameterIndex The index of the method parameter
- */
-export function Decode(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-    Reflect.defineMetadata(decodeMetadataKey, parameterIndex, target, propertyKey);
+export class DecodedToken {
+    public aud!: string;
+    public auth_time!: number;
+    public exp!: number;
+    public firebase!: any;
+    public iat!: number;
+    public iss!: number;
+    public sub!: string;
+    public uid!: string;
+
+    constructor(){};
 }
