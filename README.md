@@ -115,3 +115,5 @@ If the properties required by typescript-rest-fireauth remain unread in your con
 1.0.0 - Initial release.
 
 1.1.0 - Switched from `Decode` parameter decorator to `DecodedToken` controller property in order to fulfill decoded Firebase ID token, because typescript-rest does not allow additional parameters in POST/PUT methods.
+
+1.1.3 - Bumped firebase-admin to v9.6. This may introduce breaking changes. Please open an issue if you see any.
